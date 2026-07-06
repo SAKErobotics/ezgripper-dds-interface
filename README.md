@@ -71,7 +71,7 @@ pip install -e .
 ### Basic Usage
 
 ```python
-from ezgripper_dds_interface import create_connection, create_gripper, load_config
+from ezgripper_dds_interface.libezgripper import create_connection, create_gripper, load_config
 
 # Create connection
 connection = create_connection('/dev/ttyUSB0', 1000000)
@@ -96,7 +96,7 @@ print(f"Current position: {position}%")
 ### DDS Interface Usage
 
 ```python
-from ezgripper_dds_interface import EZGripperDDSInterface
+from ezgripper_dds_interface.libezgripper import create_connection, create_gripper, load_config
 
 # Create DDS interface
 interface = EZGripperDDSInterface('/dev/ttyUSB0', 1000000)
@@ -185,7 +185,7 @@ gripper.get_temperatures()     # Get servo temperatures
 ### DDS Interface Functions
 
 ```python
-from ezgripper_dds_interface import EZGripperDDSInterface, create_dds_interface
+from ezgripper_dds_interface.interface import EZGripperDDSInterface, create_dds_interface
 
 # Create DDS interface
 interface = create_dds_interface(port='/dev/ttyUSB0', baudrate=1000000)

@@ -12,7 +12,7 @@ import sys
 import os
 
 # Add libezgripper to path
-libezgripper_path = os.path.join(os.path.dirname(__file__), '..', '..', 'libezgripper')
+libezgripper_path = os.path.join(os.path.dirname(__file__), 'libezgripper')
 sys.path.insert(0, libezgripper_path)
 
 from libezgripper import create_connection, create_gripper, load_config
