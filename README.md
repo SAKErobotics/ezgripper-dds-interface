@@ -9,7 +9,7 @@ This repository provides the core hardware communication layer and generic DDS i
 - **Universal Foundation**: Used by Unitree, ROS2, and other robot platforms
 - **DDS-Agnostic**: Works with any DDS implementation
 - **Protocol 2.0**: Modern Dynamixel SDK communication
-- **Multi-Gripper**: Support for independent gripper instances
+- **Full Position & Force Control**: Dynamic force limits on every cycle
 
 ## Architecture
 
@@ -25,9 +25,10 @@ This repository provides the core hardware communication layer and generic DDS i
 │  └─────────────────────────────────────────────┘  │
 │                                                     │
 │  ┌─────────────────────────────────────────────┐  │
-│  │  Generic DDS Interface                      │  │
-│  │  - rt/ezgripper/{side}/admin → state        │  │
-│  │  - rt/gripper/{side}/telemetry              │  │
+│  │  Agnostic DDS Interface (Superset)          │  │
+│  │  - rt/gripper/{side}/cmd_direct              │  │
+│  │  - rt/gripper/{side}/state_direct           │  │
+│  │  - Full position + force control             │  │
 │  └─────────────────────────────────────────────┘  │
 └─────────────────────────────────────────────────┘
          │                     │
@@ -66,12 +67,75 @@ pip install -e .
 - USB connection (FTDI USB-to-serial adapter)
 - **Need to upgrade servos?** See [Servo Upgrade Guide](https://github.com/SAKErobotics/ezgripper_ros2_v2/blob/main/SERVO_UPGRADE.md)
 
-## Quick Start
+## Agnostic DDS Interface
 
-### Basic Usage
+This repository provides the **Agnostic Direct Control Interface** - the superset interface that gives full position and force control independent of any robot platform.
+
+### Topics
+
+- **Command**: `rt/gripper/{side}/cmd_direct` - Full position and force control
+- **State**: `rt/gripper/{side}/state_direct` - Real-time feedback
+
+### Message Format
+
+```json
+{
+  "position_pct": 0.0,      // 0.0 (closed) to 100.0 (fully open)
+  "force_limit_pct": 25     // 0 to 100% dynamic current ceiling
+}
+```
+
+### Key Features
+
+- **Dynamic Force Control**: Adjust force limits on every cycle
+- **No Fixed Limitations**: Unlike robot-specific interfaces, force is not hardcoded
+- **Platform Agnostic**: Works with any robot platform or DDS implementation
+- **Vision Integration**: Perfect for vision-based force adaptation
+
+### Usage Example
 
 ```python
-from ezgripper_dds_interface.libezgripper import create_connection, create_gripper, load_config
+import json
+import time
+from cyclonedds.domain import DomainParticipant
+from cyclonedds.topic import Topic
+from cyclonedds.pub import Publisher, DataWriter
+import ctypes
+
+class GenericStringIDL(ctypes.Structure):
+    _fields_ = [("data", ctypes.c_char_p)]
+
+participant = DomainParticipant()
+cmd_topic = Topic(participant, "rt/gripper/left/cmd_direct", GenericStringIDL)
+publisher = Publisher(participant)
+writer = DataWriter(publisher, cmd_topic)
+
+def send_command(position_pct, force_limit_pct):
+    """Send agnostic command with full position and force control"""
+    payload = {
+        "position_pct": position_pct,
+        "force_limit_pct": force_limit_pct
+    }
+    msg_bytes = json.dumps(payload).encode('utf-8')
+    sample = GenericStringIDL(data=msg_bytes)
+    writer.write(sample)
+
+# Example: Soft grasp for delicate object (5% force)
+send_command(position_pct=0.0, force_limit_pct=5)
+
+# Example: Firm grasp for heavy object (45% force)
+send_command(position_pct=0.0, force_limit_pct=45)
+
+# Example: Open with moderate force (100% position, 20% force)
+send_command(position_pct=100.0, force_limit_pct=20)
+```
+
+## Hardware API
+
+For direct hardware control without DDS, use the hardware API:
+
+```python
+from ezgripper_dds_interface import create_connection, create_gripper, load_config
 
 # Create connection
 connection = create_connection('/dev/ttyUSB0', 1000000)
@@ -93,45 +157,7 @@ position = gripper.get_position()
 print(f"Current position: {position}%")
 ```
 
-### DDS Interface Usage
-
-```python
-from ezgripper_dds_interface.libezgripper import create_connection, create_gripper, load_config
-
-# Create DDS interface
-interface = EZGripperDDSInterface('/dev/ttyUSB0', 1000000)
-
-# Add gripper
-interface.add_gripper('left', [1])
-
-# Process command
-command = {'action': 'goto_position', 'parameters': {'position': 50, 'effort': 30}}
-response = interface.process_command('left', command)
-
-# Get state
-state = interface.get_state('left')
-print(f"State: {state}")
-```
-
-## DDS Interface
-
-### Generic Topics
-
-This interface uses standard DDS topic naming:
-
-- **`rt/ezgripper/{side}/admin`** - Gripper administration commands
-  - Actions: calibrate, get_status, clear_errors
-  - Format: JSON with action and parameters
-
-- **`rt/ezgripper/{side}/state`** - Gripper state information
-  - Data: position, effort, temperature, errors
-  - Format: JSON with state information
-
-- **`rt/gripper/{side}/telemetry`** - Telemetry data
-  - Data: detailed sensor readings
-  - Format: JSON with telemetry information
-
-### DDS Compatibility
+## DDS Compatibility
 
 This interface is designed to work with any DDS implementation:
 
@@ -166,7 +192,7 @@ This interface is used by:
 ### Hardware Functions
 
 ```python
-from ezgripper_dds_interface.libezgripper import create_connection, create_gripper, load_config
+from ezgripper_dds_interface import create_connection, create_gripper, load_config
 
 # Create hardware connection
 connection = create_connection(port='/dev/ttyUSB0', baudrate=1000000)
@@ -208,7 +234,7 @@ interface.get_telemetry(side='left')
 The interface uses a configuration file for hardware settings. The default configuration is loaded automatically, but you can provide custom configuration:
 
 ```python
-from ezgripper_dds_interface.libezgripper import load_config
+from ezgripper_dds_interface import load_config
 
 # Load default config
 config = load_config()
