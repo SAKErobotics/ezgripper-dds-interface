@@ -4,7 +4,7 @@ Upgrade your EZGripper servos from Protocol 1.0 to Protocol 2.0 for use with the
 
 ## Download Dynamixel Wizard
 
-Download from: [Robotis e-Manual](https://emanual.robotis.com/docs/en/software/dynamixel/dynamixel_wizard2/)
+Download from: [Dynamixel Wizard 2.0 Installation](https://docs.robotis.com/docs/software/dynamixel_wizard_2_0/installation)
 
 ## Upgrade Process
 
@@ -68,5 +68,5 @@ Repeat the recovery process for each servo in your EZGripper:
 
 ## Need Help?
 
-- [Dynamixel Wizard Manual](https://emanual.robotis.com/docs/en/software/dynamixel/dynamixel_wizard2/)
+- [Dynamixel Wizard Manual](https://docs.robotis.com/docs/software/dynamixel_wizard_2_0/installation)
 - [SAKE Robotics Support](https://sakerobotics.com/)
