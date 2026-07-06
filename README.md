@@ -2,6 +2,14 @@
 
 Generic DDS interface for SAKE Robotics EZGripper. Universal foundation for all EZGripper integrations.
 
+## ⚠️ Protocol 2.0 Required
+
+**Your EZGripper servos must be upgraded to Protocol 2.0 to use this interface.**
+
+**How to Check**: If your servos are using Protocol 1.0, this interface will not work.
+
+**How to Upgrade**: See [Servo Upgrade Guide](SERVO_UPGRADE.md)
+
 ## Quick Start
 
 ### Installation
