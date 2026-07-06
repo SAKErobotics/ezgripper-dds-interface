@@ -1,0 +1,54 @@
+{
+  "servo": {
+    "dynamixel_settings": {
+      "operating_mode": 5,
+      "current_limit": 1600,
+      "velocity_limit": 1023,
+      "profile_velocity": 500,
+      "profile_acceleration": 800,
+      "return_delay_time": 2,
+      "status_return_level": 2
+    },
+    "force_management": {
+      "moving_force_pct": 50,
+      "contact_force_pct": 20,
+      "grasping_force_pct": 15.0,
+      "idle_force_pct": 10
+    },
+    "collision_detection": {
+      "enabled": true,
+      "consecutive_samples_required": 3,
+      "stall_tolerance_pct": 2.0,
+      "zero_target_tolerance_pct": 0.04,
+      "position_change_threshold_pct": 1.0,
+      "command_change_threshold_pct": 3.0
+    }
+  },
+  "gripper": {
+    "grip_max": 2500,
+    "position_scaling": {
+      "max_open_percent": 100
+    },
+    "calibration": {
+      "goto_position_target": -300,
+      "goto_position_effort": 30,
+      "settle_position": 35,
+      "auto_on_init": true
+    }
+  },
+  "communication": {
+    "device": "/dev/ttyUSB0",
+    "baudrate": 1000000,
+    "protocol_version": 2.0,
+    "servo_id": 1,
+    "timeout": 0.5,
+    "smart_init": true
+  },
+  "logging": {
+    "enabled": true,
+    "level": "INFO",
+    "log_errors": true,
+    "log_temperature": true,
+    "log_current": false
+  }
+}
