@@ -15,7 +15,7 @@ import os
 libezgripper_path = os.path.join(os.path.dirname(__file__), 'libezgripper')
 sys.path.insert(0, libezgripper_path)
 
-from libezgripper import create_connection, create_gripper, load_config
+from .libezgripper import create_connection, create_gripper, load_config
 
 
 class EZGripperDDSInterface:
